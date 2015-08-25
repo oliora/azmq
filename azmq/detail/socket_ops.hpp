@@ -344,6 +344,26 @@ namespace detail {
             return res;
         }
 
+        template<size_t N>
+        static size_t receive_more(std::array<azmq::message, N> & arr,
+                                   socket_type & socket,
+                                   flags_type flags,
+                                   boost::system::error_code & ec) {
+            size_t res = 0;
+            /*message msg;
+            bool more = false;
+            do {
+                auto sz = receive(msg, socket, flags, ec);
+                if (ec)
+                    return 0;
+                more = msg.more();
+                vec.emplace_back(std::move(msg));
+                res += sz;
+                flags |= ZMQ_RCVMORE;
+            } while (more);*/
+            return res;
+        }
+
         static size_t flush(socket_type & socket,
                             boost::system::error_code & ec) {
             size_t res = 0;

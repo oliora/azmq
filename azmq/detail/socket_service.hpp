@@ -444,6 +444,19 @@ namespace detail {
             return r;
         }
 
+        template<size_t N>
+        size_t receive_more(implementation_type & impl,
+                            std::array<azmq::message, N> & arr,
+                            flags_type flags,
+                            boost::system::error_code & ec) {
+            unique_lock l{ *impl };
+            if (is_shutdown(impl, op_type::read_op, ec))
+                return 0;
+            auto r = socket_ops::receive_more(arr, impl->socket_, flags, ec);
+            check_missed_events(impl);
+            return r;
+        }
+
         size_t flush(implementation_type & impl,
                      boost::system::error_code & ec) {
             unique_lock l{ *impl };

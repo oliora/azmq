@@ -22,6 +22,7 @@
 #include <boost/asio/buffer.hpp>
 #include <boost/system/error_code.hpp>
 
+#include <array>
 #include <type_traits>
 
 namespace azmq {
@@ -391,7 +392,7 @@ public:
     }
 
     /** \brief Receive all parts of a multipart message from the socket
-     *  \param vec messave_vector to fill on receive
+     *  \param vec message_vector to fill on receive
      *  \flags specifying how the receive call is to be made
      *  \return size_t bytes transferred
      *  \throw boost::system::system_error
@@ -400,6 +401,35 @@ public:
                         flags_type flags) {
         boost::system::error_code ec;
         auto res = receive_more(vec, flags, ec);
+        if (ec)
+            throw boost::system::system_error(ec);
+        return res;
+    }
+
+    /** \brief Receive N parts of a multipart message from the socket
+     *  \param arr std::array of messages to fill on receive
+     *  \flags specifying how the receive call is to be made
+     *  \param ec set to indicate what error, if any, occurred
+     *  \return size_t bytes transferred
+     */
+    template<size_t N>
+    size_t receive_more(std::array<azmq::message, N> & arr,
+                        flags_type flags,
+                        boost::system::error_code & ec) {
+        return get_service().receive_more(implementation, arr, flags, ec);
+    }
+
+    /** \brief Receive N parts of a multipart message from the socket
+     *  \param arr std::array of messages to fill on receive
+     *  \flags specifying how the receive call is to be made
+     *  \return size_t bytes transferred
+     *  \throw boost::system::system_error
+     */
+    template<size_t N>
+    size_t receive_more(std::array<azmq::message, N> & arr,
+                        flags_type flags) {
+        boost::system::error_code ec;
+        auto res = receive_more(arr, flags, ec);
         if (ec)
             throw boost::system::system_error(ec);
         return res;
